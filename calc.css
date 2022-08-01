@@ -22,6 +22,38 @@ footer {
   flex: 1;
   margin: 0px; border-radius: 8px;
   background-color: lavender;
-  display: flex; justify-content: stretch; align-items: stretch;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
   padding: 50px;
+}
+
+.calc {
+  background-color: lightgreen;
+  padding: 20px;
+  border-radius: 8px;
+}
+.calc-display {
+  font-family: monospace; font-size: 30px;
+  background-color: lightgrey;
+  min-width: 200px;
+  text-align: right;
+  padding: 8px;
+  border: 2px solid darkgray;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+.button-grid {
+  min-width: 200px;
+  min-height: 300px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  padding: 0px;
+  gap: 10px;
+}
+.button {
+  font-family: monospace; font-size: 30px;
+  display: flex; justify-content: center; align-items: center;
+  background-color: lavender;
+  border: 1px solid purple;
+  border-radius: 5px;
+  padding: 20px;
 }
