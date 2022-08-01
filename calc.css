@@ -31,7 +31,8 @@ footer {
   padding: 20px;
   border-radius: 8px;
 }
-.calc-display {
+#calc-display {
+  display: block;
   font-family: monospace; font-size: 30px;
   background-color: lightgrey;
   min-width: 200px;
@@ -41,7 +42,7 @@ footer {
   border-radius: 8px;
   margin-bottom: 20px;
 }
-.button-grid {
+.calc-grid {
   min-width: 200px;
   min-height: 300px;
   display: grid;

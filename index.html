@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
   <link rel="stylesheet" href="calc.css">
-  <script src="calc.js"></script>
+  <script src="calc.js" defer></script>
 </head>
 <body>
   <header>
@@ -16,30 +16,30 @@
 
   <div class="body">
     <div class="calc">
-      <div class="calc-display">
+      <output id="calc-display">
         12345
-      </div>
-      <div class="button-grid">
-        <button class="button" id="keyClear">AC</button>
-        <button class="button" id="keyLParen" disabled>(</button>
-        <button class="button" id="keyRParen" disabled>)</button>
-        <button class="button" id="keyDiv" disabled>/</button>
-        <button class="button" id="key7">7</button>
-        <button class="button" id="key8">8</button>
-        <button class="button" id="key9">9</button>
-        <button class="button" id="keyTimes" disabled>×</button>
-        <button class="button" id="key6">6</button>
-        <button class="button" id="key5">5</button>
-        <button class="button" id="key4">4</button>
-        <button class="button" id="keyMinus" disabled>−</button>
-        <button class="button" id="key3">3</button>
-        <button class="button" id="key2">2</button>
-        <button class="button" id="key1">1</button>
-        <button class="button" id="keyPlus" disabled>+</button>
-        <button class="button" id="key0">0</button>
-        <button class="button" id="keyPoint">.</button>
-        <button class="button" id="keyBS">&#x232b;</button>
-        <button class="button" id="keyEquals" disabled>=</button>
+      </output>
+      <div class="calc-grid">
+        <button disabled class="calc-key" id="keyClear">AC</button>
+        <button disabled class="calc-key lparen" id="keyLParen">(</button>
+        <button disabled class="calc-key rparen" id="keyRParen">)</button>
+        <button disabled class="calc-key op" id="keyDiv">/</button>
+        <button disabled class="calc-key num" id="key7">7</button>
+        <button disabled class="calc-key num" id="key8">8</button>
+        <button disabled class="calc-key num" id="key9">9</button>
+        <button disabled class="calc-key op" id="keyTimes">×</button>
+        <button disabled class="calc-key num" id="key6">6</button>
+        <button disabled class="calc-key num" id="key5">5</button>
+        <button disabled class="calc-key num" id="key4">4</button>
+        <button disabled class="calc-key op" id="keyMinus">−</button>
+        <button disabled class="calc-key num" id="key3">3</button>
+        <button disabled class="calc-key num" id="key2">2</button>
+        <button disabled class="calc-key num" id="key1">1</button>
+        <button disabled class="calc-key op" id="keyPlus">+</button>
+        <button disabled class="calc-key num" id="key0">0</button>
+        <button disabled class="calc-key num" id="keyPoint">.</button>
+        <button disabled class="calc-key num" id="keyBS">&#x232b;</button>
+        <button disabled class="calc-key" id="keyEquals">=</button>
       </div>
     </div>
   </div>
