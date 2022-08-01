@@ -1,0 +1,27 @@
+body {
+  min-height: 100vh; margin: 0px;  box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: stretch;
+  padding: 10px; gap: 10px; 
+}
+header {
+  text-align: center;
+  margin: 0px; border: 10px; border-radius: 8px;
+  background-color: lightblue;
+}
+header h1 {
+  margin: 0px;
+}
+footer {
+  margin: 0px; border: 10px; border-radius: 8px; padding: 10px;
+  background-color: lightgrey;
+  display: flex; justify-content: center; align-items: center;
+  gap: 50px;
+}
+
+.body {
+  flex: 1;
+  margin: 0px; border-radius: 8px;
+  background-color: lavender;
+  display: flex; justify-content: stretch; align-items: stretch;
+  padding: 50px;
+}
