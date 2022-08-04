@@ -1,7 +1,13 @@
-
 disp = document.querySelector('#calc-display')
 let resultStack = [];
-let keyBuffer = [];
+var keyBuffer = new myBuffer();
+
+document.querySelectorAll('button.calc-key').forEach(b => {
+  b.addEventListener('click', e => {
+    console.log(b.id);
+    keyBuffer.putItem(b.id);
+  });
+});
 
 function allClear() {
   disp.style.minHeight = window.getComputedStyle(disp).height;
@@ -11,24 +17,9 @@ function allClear() {
 async function getNumber() {
   console.log('Type a number.');
   disableOps();
-  document.querySelectorAll('.calc-key+.num').forEach(b => {
-    b.disabled = false;
-    b.addEventListener('click', getDigit);
-  });
+  let d = await keyBuffer.getItem();
+  console.log(d);
 }
-
-function nextEvent() {
-  return new Promise((resolve,reject) => {
-    function doResolve(e) { console.log('Resolving.'); resolve(e); }
-    document.querySelectorAll('.calc-key').forEach(b => {
-      b.removeEventListener('click', b.oldListener);
-      b.oldListener = doResolve;
-      b.addEventListener('click', doResolve);
-    })
-  });
-}
-
-
 
 function enableOps() {
   disableOps(false);
