@@ -16,8 +16,8 @@ function allClear() {
 
 // Notation for alternatives: ( a | b )
 // Star means zero or more repetitions.
-// expr ::= term (+ term | - term )* =
-// term ::= term * factor | term / factor | factor
+// expr ::= term (+ term | - term )*
+// term ::= fator (* term | / term)* 
 // factor ::= number | ( expr )
 // number ::= number digit | digit
 
@@ -26,16 +26,17 @@ async function getExpr(curChar) {
 
   let value;
   let value2;
+  let finished = false;
 
   ({ value, curChar } = await getTerm(curChar));
 
-  console.log('Value:', value, 'curChar:', curChar);
-  while (curChar !== 'keyEquals') {
-    console.log(`curChar: ${curChar}`);
+  // console.log('Value:', value, 'curChar:', curChar);
+  while (!finished) {
+    console.log(`getExpr: value=${value} curChar=${curChar}`);
     switch(curChar) {
       case 'keyPlus':
         ({ value: value2, curChar } = await getTerm());
-        console.log('Value2:', value2, 'curChar:', curChar);
+        // console.log('Value2:', value2, 'curChar:', curChar);
         value += value2;
         disp.value = value;
         break;
@@ -45,7 +46,7 @@ async function getExpr(curChar) {
         disp.value = value;
         break;
       default:
-        throw `unknown operator ${curChar}`;
+        finished = true;
         break;
     }
     // curChar = await keyBuffer.getItem();
@@ -56,7 +57,31 @@ async function getExpr(curChar) {
 }
 
 async function getTerm(curChar) {
-  return await getFactor(curChar);
+  let value;
+  let value2;
+  let finished = false;
+
+  ({ value, curChar } = await getFactor(curChar));
+
+  while (!finished) {
+    console.log(`getTerm: value=${value} curChar=${curChar}`);
+    switch(curChar) {
+      case 'keyTimes':
+        ({ value: value2, curChar} = await getFactor());
+        value *= value2;
+        disp.value = value;
+        break;
+      case 'keyDiv':
+        ({ value: value2, curChar} = await getFactor());
+        value /= value2;
+        disp.value = value;
+        break;
+      default:
+        finished = true;
+        break;
+    }
+  }
+  return {value, curChar}
 }
 
 async function getFactor(curChar) {
