@@ -4,7 +4,7 @@ var keyBuffer = new myBuffer();
 
 document.querySelectorAll('button.calc-key').forEach(b => {
   b.addEventListener('click', e => {
-    console.log(b.id);
+    // console.log(b.id);
     keyBuffer.putItem(b.id);
   });
 });
@@ -14,18 +14,116 @@ function allClear() {
   disp.value = '';
 }
 
-async function getNumber() {
+// Notation for alternatives: ( a | b )
+// Star means zero or more repetitions.
+// expr ::= term (+ term | - term )* =
+// term ::= term * factor | term / factor | factor
+// factor ::= number | ( expr )
+// number ::= number digit | digit
+
+async function getExpr(curChar) {
   console.log('Type a number.');
-  disableOps();
-  let d = await keyBuffer.getItem();
-  console.log(d);
+
+  let value;
+  let value2;
+
+  ({ value, curChar } = await getTerm(curChar));
+
+  console.log('Value:', value, 'curChar:', curChar);
+  while (curChar !== 'keyEquals') {
+    console.log(`curChar: ${curChar}`);
+    switch(curChar) {
+      case 'keyPlus':
+        ({ value: value2, curChar } = await getTerm());
+        console.log('Value2:', value2, 'curChar:', curChar);
+        value += value2;
+        disp.value = value;
+        break;
+      case 'keyMinus':
+        ({ value: value2, curChar } = await getTerm());
+        value -= value2;
+        disp.value = value;
+        break;
+      default:
+        throw `unknown operator ${curChar}`;
+        break;
+    }
+    // curChar = await keyBuffer.getItem();
+  }
+
+  disp.value = value;
+  return value;
+}
+
+async function getTerm(curChar) {
+  return await getFactor(curChar);
+}
+
+async function getFactor(curChar) {
+  return await getNumber(curChar);
+}
+
+async function getNumber(curChar) {
+  if (!curChar) curChar = await keyBuffer.getItem();
+  console.log(curChar);
+  let value = keyValue(curChar);
+  disp.value = value;
+  enableOps();
+
+  curChar = await keyBuffer.getItem();
+  while (isDigit(curChar)) {
+    value *= 10;
+    value += keyValue(curChar);
+    disp.value = value;
+    curChar = await keyBuffer.getItem();
+    console.log(curChar);
+  }
+  return {value, curChar};
+}
+
+function keyValue(curChar) {
+  switch(curChar) {
+    case 'key0': return 0;
+    case 'key1': return 1;
+    case 'key2': return 2;
+    case 'key3': return 3;
+    case 'key4': return 4;
+    case 'key5': return 5;
+    case 'key6': return 6;
+    case 'key7': return 7;
+    case 'key8': return 8;
+    case 'key9': return 9;
+    default: throw 'keyValue: expected digit';
+  }
+}
+
+
+function isDigit(key) {
+  return (
+    key == "key0" || key == "key1" || key == "key2" ||
+    key == "key3" || key == "key4" || key == "key5" ||
+    key == "key6" || key == "key7" || key == "key8" ||
+    key == "key9"
+  );
+
+}
+function isNum(key) {
+  return ( isDigit(key) || key == "key."
+  );
+}
+
+function enableNums() {
+  document.querySelectorAll('.calc-key+.num').forEach(b => b.disabled = false);
+}
+function disableNums() {
+  document.querySelectorAll('.calc-key+.num').forEach(b => b.disabled = true);
 }
 
 function enableOps() {
-  disableOps(false);
+  document.querySelectorAll('.calc-key+.op').forEach(b => b.disabled = false);
 }
-function disableOps(state = true) {
-  document.querySelectorAll('.calc-key+.op').forEach(b => b.disabled = state);
+function disableOps() {
+  document.querySelectorAll('.calc-key+.op').forEach(b => b.disabled = true);
 }
 
 async function getDigit(e) {
@@ -56,4 +154,5 @@ async function getDigit(e) {
 
 // Kick things off by getting the first number.
 allClear()
-getNumber();
+enableNums();
+getExpr();
