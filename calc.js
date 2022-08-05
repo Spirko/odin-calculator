@@ -1,4 +1,5 @@
-disp = document.querySelector('#calc-display')
+disp = document.querySelector('#calc-display');
+parens = document.querySelector('#calc-parens');
 let resultStack = [];
 var keyBuffer = new myBuffer();
 
@@ -12,6 +13,7 @@ document.querySelectorAll('button.calc-key').forEach(b => {
 function allClear() {
   disp.style.minHeight = window.getComputedStyle(disp).height;
   disp.value = '';
+  parens.value = '0';
 }
 
 // Notation for alternatives: ( a | b )
@@ -53,7 +55,7 @@ async function getExpr(curChar) {
   }
 
   disp.value = value;
-  return value;
+  return {value, curChar};
 }
 
 async function getTerm(curChar) {
@@ -85,13 +87,36 @@ async function getTerm(curChar) {
 }
 
 async function getFactor(curChar) {
-  return await getNumber(curChar);
+  let value;
+  if (!curChar) curChar = await keyBuffer.getItem();
+
+  if (curChar === 'keyLParen') {
+    incParens();
+    ({value, curChar} = await getExpr()); // eat LParen
+    if (curChar === 'keyRParen') curChar = await keyBuffer.getItem(); // eat RParen
+    decParens();
+  } else if (isDigit(curChar)) {
+    ({value, curChar} = await getNumber(curChar));
+  } else {
+    throw `getFactor: unexpected character ${curChar}`;
+  }
+  return {value, curChar};
+}
+
+function decParens() {
+  parens.value -= 1; 
+  if (parens.value === '0')
+    document.querySelector('.calc-key+.rparen').disabled = true;
+}
+function incParens() { 
+  parens.value -= (-1); // Subtracting (-1) forces conversion to/from integer.
+  document.querySelector('.calc-key+.rparen').disabled = false;
 }
 
 async function getNumber(curChar) {
   let finished = false;
   if (!curChar) curChar = await keyBuffer.getItem();
-  console.log(curChar);
+  // console.log(curChar);
   let value = 0;
   enableOps();
 
