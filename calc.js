@@ -89,19 +89,24 @@ async function getFactor(curChar) {
 }
 
 async function getNumber(curChar) {
+  let finished = false;
   if (!curChar) curChar = await keyBuffer.getItem();
   console.log(curChar);
-  let value = keyValue(curChar);
-  disp.value = value;
+  let value = 0;
   enableOps();
 
-  curChar = await keyBuffer.getItem();
-  while (isDigit(curChar)) {
-    value *= 10;
-    value += keyValue(curChar);
-    disp.value = value;
-    curChar = await keyBuffer.getItem();
-    console.log(curChar);
+  while (!finished) {
+    console.log(`getNumber value=${value} curChar=${curChar}`);
+    switch(curChar) {
+      case 'key0': case 'key1': case 'key2': case 'key3': case 'key4': 
+      case 'key5': case 'key6': case 'key7': case 'key8': case 'key9': 
+        value = value * 10 + keyValue(curChar);
+        disp.value = value;
+        curChar = await keyBuffer.getItem();
+        break;
+      default:
+        finished = true;
+    }
   }
   return {value, curChar};
 }
@@ -121,7 +126,6 @@ function keyValue(curChar) {
     default: throw 'keyValue: expected digit';
   }
 }
-
 
 function isDigit(key) {
   return (
