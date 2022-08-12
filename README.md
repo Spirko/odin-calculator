@@ -19,3 +19,5 @@ Currently on the ToDo list are:
 * Powers
 * Keyboard shortcuts
 * Scientific notation
+* Switch to Shunting yard algorithm???
+  This algorithm is driven by the input data, rather than driven by the parser, alleviating the need for a buffer.
