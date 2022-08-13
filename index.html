@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
   <link rel="stylesheet" href="calc.css">
+  <link rel="icon" href="favicon.png">
   <script src="calc.js" defer></script>
 </head>
 <body>
@@ -24,8 +25,12 @@
         12345
       </output>
       <div class="calc-grid">
-        <button disabled class="calc-key" id="keyClear">AC</button>
-        <button disabled class="calc-key num" id="keyLParen">(</button>
+        <button class="calc-key" id="keyClear">AC</button>
+        <button disabled class="calc-key" id="keyCE">CE</button>
+        <div></div>
+        <div></div>
+        <button disabled class="calc-key op" id="keye">EE</button>
+        <button disabled class="calc-key lparen" id="keyLParen">(</button>
         <button disabled class="calc-key rparen" id="keyRParen">)</button>
         <button disabled class="calc-key op" id="keyDiv">/</button>
         <button disabled class="calc-key num" id="key7">7</button>
@@ -41,16 +46,17 @@
         <button disabled class="calc-key num" id="key3">3</button>
         <button disabled class="calc-key op" id="keyPlus">+</button>
         <button disabled class="calc-key num" id="key0">0</button>
-        <button disabled class="calc-key num" id="keyPoint">.</button>
-        <button disabled class="calc-key num" id="keyBS">&#x232b;</button>
-        <button disabled class="calc-key op" id="keyEquals">=</button>
+        <button disabled class="calc-key num" id="key.">.</button>
+        <button disabled class="calc-key op" id="keyBS">&#x232b;</button>
+        <button class="calc-key op" id="keyEquals">=</button>
       </div>
     </div>
   </div>
 
   <footer><div class='name'>Copyright 2022,<br>Jeff Spirko</div>
     <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
-      <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" />
+      <img alt="Creative Commons License" style="border-width:0"
+        src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" />
     </a> 
     <span>This work is licensed under the<br />
     <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
