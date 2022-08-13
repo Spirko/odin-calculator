@@ -50,11 +50,16 @@ footer {
   padding: 0px;
   gap: 10px;
 }
-.button {
-  font-family: monospace; font-size: 30px;
+
+button {
+  font-family: monospace; font-size: 20px;
   display: flex; justify-content: center; align-items: center;
-  background-color: lavender;
+  background-color: lightgrey;
   border: 1px solid purple;
-  border-radius: 5px;
+  border-radius: 8px;
   padding: 20px;
+  box-shadow: -2px 4px;
+}
+button:disabled {
+  background-color: gray;
 }
