@@ -1,212 +1,182 @@
 disp = document.querySelector('#calc-display');
 parens = document.querySelector('#calc-parens');
-let resultStack = [];
-var keyBuffer = new myBuffer();
+
+const digits = [ 'key0', 'key1', 'key2', 'key3', 'key4',
+  'key5', 'key6', 'key7', 'key8' ,'key9'];
+
+const ops = [ 'keyCE', 'keyPlus', 'keyMinus', 'keyTimes', 'keyDiv' ];
+
+const numStart = [ digits, 'key.', 'keyLParen'];
+const midNum = [ digits, 'key.', 'keye', 'keyBS', ops ];
+
+let curValue = 0;
+let wipeOnDigit = false;
+let valueStack = [];
+let opStack = [];
 
 document.querySelectorAll('button.calc-key').forEach(b => {
   b.addEventListener('click', e => {
     // console.log(b.id);
-    keyBuffer.putItem(b.id);
+    processButton(b, e);
   });
 });
 
+function processButton(b, e) {
+  console.log(b.id);
+  switch (b.id) {
+    case 'key0': case 'key1': case 'key2': case 'key3': case 'key4': 
+    case 'key5': case 'key6': case 'key7': case 'key8': case 'key9':
+    case 'key.': case 'keye':
+      processDigit(b.id);
+      break;
+    case 'keyBS':
+      processBS();
+      break;
+    case 'keyPlus': case 'keyMinus': case 'keyTimes': case 'keyDiv':
+    case 'keyLParen': case 'keyRParen': case 'keyEquals':
+      processOp(b.id);
+      break;
+    case 'keyClear':
+      allClear();
+      break;
+    case 'keyCE':
+      clearEntry();
+      break;
+    default:
+      throw 'processButton: Invalid key';
+      break;
+  }
+  console.log(`curValue: ${curValue}  wipeOnDigit: ${wipeOnDigit}`);
+  console.log(`valueStack: ${valueStack}   opStack: ${opStack}`);
+}
+
 function allClear() {
+  opStack = [];
+  valueStack = [];
+  clearEntry();
+}
+
+function clearEntry() {
   disp.style.minHeight = window.getComputedStyle(disp).height;
-  disp.value = '';
+  disp.value = '0'; wipeOnDigit = true;
+  curValue = 0;
   parens.value = '0';
+  disable(midNum); enable(numStart);
 }
 
-// Notation for alternatives: ( a | b )
-// Star means zero or more repetitions.
-// expr ::= term (+ term | - term )*
-// term ::= fator (* term | / term)* 
-// factor ::= number | ( expr )
-// number ::= number digit | digit
+function processDigit(id) {
+  if (wipeOnDigit) { disp.value = ''; curValue = 0; wipeOnDigit = false; }
+  // disp.value = (curValue !== 0?disp.value:'') + id.slice(3);
+  disp.value += id.slice(3);
+  disable(numStart); enable(midNum);
+  curValue = parseFloat(disp.value);
 
-async function getExpr(curChar) {
-  console.log('Type a number.');
+  console.log(`'${disp.value}' = ${curValue}`);
+}
 
-  let value;
-  let value2;
-  let finished = false;
+function processBS() {
+  disp.value = disp.value.slice(0,-1);
+  if (disp.value.length === 0) {
+    disp.value = '0';
+    disable(midNum); enable(numStart);
+  }
+  curValue = disp.value-0;
 
-  ({ value, curChar } = await getTerm(curChar));
+  console.log(`'${disp.value}' = ${curValue}`);
+}
 
-  // console.log('Value:', value, 'curChar:', curChar);
-  while (!finished) {
-    console.log(`getExpr: value=${value} curChar=${curChar}`);
-    switch(curChar) {
-      case 'keyPlus':
-        ({ value: value2, curChar } = await getTerm());
-        // console.log('Value2:', value2, 'curChar:', curChar);
-        value += value2;
-        disp.value = value;
-        break;
-      case 'keyMinus':
-        ({ value: value2, curChar } = await getTerm());
-        value -= value2;
-        disp.value = value;
-        break;
-      default:
-        finished = true;
-        break;
-    }
-    // curChar = await keyBuffer.getItem();
+function processOp(id) {
+
+  console.log(`processOp: ${id} precedence ${precedence(id)}`);
+
+  switch(id) {
+    case 'keyLParen': // Easy: just push a left paren and keep track of it.
+      opStack.push('keyLParen');
+      incParens();
+      break;
+    case 'keyEquals':
+      while (opStack.length > 0) {
+        doNextOp();
+      }
+      disp.value = curValue;
+      wipeOnDigit = true;
+      disable(midNum); enable(numStart); enable(ops);
+      break;
+    case 'keyRParen':
+      while (opStack.length > 0 && opStack.at(-1) !== 'keyLParen') {
+        doNextOp();
+      }
+      opStack.pop();  // pop off the left paren
+      disp.value = curValue;
+      disable(numStart); enable(ops);
+      decParens();
+      break;
+    case 'keyPlus': case 'keyMinus': case 'keyTimes': case 'keyDiv':
+      while (opStack.length > 0 
+        && opStack.at(-1) !== 'keyLparen'
+        && precedence(opStack.at(-1)) >= precedence(id)) {
+        doNextOp();
+      }
+      console.log(`valueStack: ${valueStack}   opStack: ${opStack}`);
+      opStack.push(id);
+      valueStack.push(curValue);
+      disp.value = curValue;
+      disable(ops); enable(numStart);
+      wipeOnDigit = true;      
+      break;
+  default:
+      throw `ToDo: Must implement ${id}`
   }
 
-  disp.value = value;
-  return {value, curChar};
 }
 
-async function getTerm(curChar) {
-  let value;
-  let value2;
-  let finished = false;
-
-  ({ value, curChar } = await getFactor(curChar));
-
-  while (!finished) {
-    console.log(`getTerm: value=${value} curChar=${curChar}`);
-    switch(curChar) {
-      case 'keyTimes':
-        ({ value: value2, curChar} = await getFactor());
-        value *= value2;
-        disp.value = value;
-        break;
-      case 'keyDiv':
-        ({ value: value2, curChar} = await getFactor());
-        value /= value2;
-        disp.value = value;
-        break;
-      default:
-        finished = true;
-        break;
-    }
+function doNextOp() {
+  console.log(`doNextOp:  valueStack: ${valueStack} curValue: ${curValue} opStack: ${opStack} `);
+  const op = opStack.pop();
+  switch(op) {
+    case 'keyPlus':  curValue = valueStack.pop() + curValue; break;
+    case 'keyMinus': curValue = valueStack.pop() - curValue; break;
+    case 'keyTimes': curValue = valueStack.pop() * curValue; break;
+    case 'keyDiv':   curValue = valueStack.pop() / curValue; break;
+    default:
+      throw `ToDo: implement ${op}`;
+      break;
   }
-  return {value, curChar}
 }
 
-async function getFactor(curChar) {
-  let value;
-  if (!curChar) curChar = await keyBuffer.getItem();
-
-  if (curChar === 'keyLParen') {
-    incParens();
-    ({value, curChar} = await getExpr()); // eat LParen
-    if (curChar === 'keyRParen') curChar = await keyBuffer.getItem(); // eat RParen
-    decParens();
-  } else if (isDigit(curChar)) {
-    ({value, curChar} = await getNumber(curChar));
-  } else {
-    throw `getFactor: unexpected character ${curChar}`;
+function precedence(id) {
+  switch(id) {
+    case 'keyPlus': case 'keyMinus':
+      return 0;
+    case 'keyTimes': case 'keyDiv':
+      return 1;
   }
-  return {value, curChar};
 }
+
 
 function decParens() {
-  parens.value -= 1; 
-  if (parens.value === '0')
-    document.querySelector('.calc-key+.rparen').disabled = true;
+  parens.value -= 1;
+  ops.pop();
+  if (parens.value === '0') {
+    disable('keyRParen');
+  }
 }
 function incParens() { 
   parens.value -= (-1); // Subtracting (-1) forces conversion to/from integer.
-  document.querySelector('.calc-key+.rparen').disabled = false;
+  ops.push('keyRParen');
 }
 
-async function getNumber(curChar) {
-  let finished = false;
-  if (!curChar) curChar = await keyBuffer.getItem();
-  // console.log(curChar);
-  let value = 0;
-  enableOps();
-
-  while (!finished) {
-    console.log(`getNumber value=${value} curChar=${curChar}`);
-    switch(curChar) {
-      case 'key0': case 'key1': case 'key2': case 'key3': case 'key4': 
-      case 'key5': case 'key6': case 'key7': case 'key8': case 'key9': 
-        value = value * 10 + keyValue(curChar);
-        disp.value = value;
-        curChar = await keyBuffer.getItem();
-        break;
-      default:
-        finished = true;
-    }
-  }
-  return {value, curChar};
+function enable(id) {
+  if (Array.isArray(id)) { id.forEach(b => enable(b)); }
+  else document.getElementById(`${id}`).disabled = false;
 }
-
-function keyValue(curChar) {
-  switch(curChar) {
-    case 'key0': return 0;
-    case 'key1': return 1;
-    case 'key2': return 2;
-    case 'key3': return 3;
-    case 'key4': return 4;
-    case 'key5': return 5;
-    case 'key6': return 6;
-    case 'key7': return 7;
-    case 'key8': return 8;
-    case 'key9': return 9;
-    default: throw 'keyValue: expected digit';
-  }
-}
-
-function isDigit(key) {
-  return (
-    key == "key0" || key == "key1" || key == "key2" ||
-    key == "key3" || key == "key4" || key == "key5" ||
-    key == "key6" || key == "key7" || key == "key8" ||
-    key == "key9"
-  );
-
-}
-function isNum(key) {
-  return ( isDigit(key) || key == "key."
-  );
-}
-
-function enableNums() {
-  document.querySelectorAll('.calc-key+.num').forEach(b => b.disabled = false);
-}
-function disableNums() {
-  document.querySelectorAll('.calc-key+.num').forEach(b => b.disabled = true);
-}
-
-function enableOps() {
-  document.querySelectorAll('.calc-key+.op').forEach(b => b.disabled = false);
-}
-function disableOps() {
-  document.querySelectorAll('.calc-key+.op').forEach(b => b.disabled = true);
-}
-
-async function getDigit(e) {
-  console.log(this.id);
-  
-  if (e.type == 'click') {
-    switch(this.id) {
-      case 'key1': case 'key2': case 'key3':
-      case 'key4': case 'key5': case 'key6':
-      case 'key7': case 'key8': case 'key9': case 'key0':
-        disp.value += this.id[3];
-        enableOps();
-        break;
-      case 'keyBS':
-        disp.value = disp.value.slice(0,-1);
-        if (disp.value.length == 0) disableOps();
-        break;
-      case 'keyRParen': case 'keyDiv': case 'keyTimes':
-      case 'keyMinus': case 'keyPlus': case 'Equals':
-        getOperator(e, this);
-        break;
-    }
-  }
-
-
+function disable(id) {
+  if (Array.isArray(id)) { id.forEach(b => disable(b)); }
+  else document.getElementById(`${id}`).disabled = true;
 }
 
 
 // Kick things off by getting the first number.
 allClear()
-enableNums();
-getExpr();
+// enableNums();
+// getExpr();
